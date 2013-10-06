@@ -49,14 +49,14 @@ This will look for a folder in `images/logo` and inspect the files within. It wi
 
 ## Remote Assets
 
-Sometimes you don't actually have the resized files locally, but an external service will be handling this for you. In this case, you can pass your sizes and URLs using the `:sizes` parameter. Doing this will override any files you may have in a folder on disk.
+Sometimes you don't actually have the resized files locally, but an external service will be handling this for you. In this case, you can pass your sizes and URLs using the `:sizes` parameter. Doing this will override any files you may have in a folder on disk. You'll also need to specify the `:width` and `:height` of the images.
 
 ```
-generate_clowncar "logo", :sizes => { 768 => "//remote.com/size-768", 1024 => "//remote.com/size-2024"}
+generate_clowncar "logo", :width => 768, :height => 480, :sizes => { 768 => "//remote.com/size-768", 1024 => "//remote.com/size-2024"}
 
 # or
 
-<%= clowncar_tag "logo", :sizes => { 768 => "//remote.com/size-768", 1024 => "//remote.com/size-2024"} %>
+<%= clowncar_tag "logo", :width => 768, :height => 480, :sizes => { 768 => "//remote.com/size-768", 1024 => "//remote.com/size-2024"} %>
 ```
 
 ## OldIE
@@ -82,6 +82,8 @@ https://github.com/middleman/middleman-clowncar/issues
 
 The best way to get quick responses to your issues and swift fixes to your bugs is to submit detailed bug reports, include test cases and respond to developer questions in a timely manner. Even better, if you know Ruby, you can submit Pull Requests containing Cucumber Features which describe how your feature should work or exploit the bug you are submitting.
 
-# Donate
+# Support Us
 
-[Click here to support Middleman](https://spacebox.io/s/4dXbHBorC3)
+[![Support via Gittip](https://rawgithub.com/twolfson/gittip-badge/0.1.0/dist/gittip.png)](https://www.gittip.com/tdreyno/)
+
+[Support via Donation](https://spacebox.io/s/4dXbHBorC3)

@@ -1,7 +1,7 @@
 module Middleman
   class ClownCarExtension < ::Middleman::Extension
 
-    SVG_TEMPLATE = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ::width:: ::height::' preserveAspectRatio='xMidYMid meet'><style>svg{background-size:100% 100%;background-repeat:no-repeat;}::media_queries::</style></svg>"
+    SVG_TEMPLATE = "<svg viewBox='0 0 ::width:: ::height::' preserveAspectRatio='xMidYMid meet' xmlns='http://www.w3.org/2000/svg'><style>svg{background-size:100% 100%;background-repeat:no-repeat;}::media_queries::</style></svg>"
 
     def initialize(app, options_hash={})
       super
@@ -21,7 +21,18 @@ module Middleman
       @ready = true
     end
 
-    def get_image_path(name, path, is_relative)
+    def is_relative_url?(path)
+      begin
+        uri = URI(path)
+      rescue URI::InvalidURIError
+        # Nothing we can do with it, it's not really a URI
+        return false
+      end
+
+      !uri.host
+    end
+
+    def get_image_path(name, path, is_relative, fallback_host)
       begin
         uri = URI(path)
       rescue URI::InvalidURIError
@@ -33,19 +44,26 @@ module Middleman
         path
       else
         svg_path = File.join(name, path)
+
         if is_relative
-          ::Middleman::Util.url_for(app, File.join(app.images_dir, svg_path), :relative => true)
+          url = app.asset_path(:images, svg_path)
+
+          if fallback_host &&is_relative_url?(url)
+            File.join(fallback_host, url)
+          else
+            url
+          end
         else
           svg_path
         end
       end
     end
 
-    def generate_media_queries(name, sizes, is_relative)
+    def generate_media_queries(name, sizes, is_relative, fallback_host)
       output = []
 
       if sizes.keys.length === 1
-        return "svg{background-image:url(#{get_image_path(name, sizes[sizes.keys.first], is_relative)});}"
+        return "svg{background-image:url(#{get_image_path(name, sizes[sizes.keys.first], is_relative, fallback_host)});}"
       end
 
       previous_key = nil
@@ -60,7 +78,7 @@ module Middleman
           line << "(min-width:#{previous_key+1}px) and (max-width:#{key}px)"
         end
 
-        line << "{svg{background-image:url(#{get_image_path(name, sizes[key], is_relative)});}}"
+        line << "{svg{background-image:url(#{get_image_path(name, sizes[key], is_relative, fallback_host)});}}"
 
         output << line.join("")
         previous_key = key
@@ -100,13 +118,25 @@ module Middleman
     def generate_svg(name, is_relative, options)
       if options[:sizes]
         sizes = options[:sizes]
-        width = 100
-        height = 100
+        width = options[:width]
+        height = options[:height]
       else
         sizes, width, height = get_image_sizes(name, options)
       end
+      
+      fallback_host = false
+      if is_relative 
+        test_path = app.asset_path(:images, "#{name}.svg")
+        if is_relative_url?(test_path)
+          if options.has_key?(:host)
+            fallback_host = options[:host]
+          else
+            warn "WARNING: Inline clowncar images require absolute paths. Please set a :host value"
+          end
+        end
+      end
 
-      media_queries = generate_media_queries(name, sizes, is_relative)
+      media_queries = generate_media_queries(name, sizes, is_relative, fallback_host)
 
       xml = SVG_TEMPLATE.dup
       xml.sub!("::media_queries::", media_queries)
@@ -159,15 +189,20 @@ module Middleman
 
     helpers do
       def clowncar_tag(name, options={})
-        data = extensions[:clowncar].generate_svg(name, true, options)
         internal = ""
 
         if options[:fallback]
-          fallback_path = extensions[:clowncar].get_image_path(name, options[:fallback], true)
+          fallback_path = extensions[:clowncar].get_image_path(name, options[:fallback], true, false)
           internal = %{<!--[if lte IE 8]><img src="#{fallback_path}"><![endif]-->}
         end
 
-        %Q{<object type="image/svg+xml" data="data:image/svg+xml,#{::URI.escape(data)}">#{internal}</object>}
+        if options.has_key?(:inline) && (options[:inline] === false)
+          url = asset_path(:images, "#{name}.svg")
+          %Q{<object type="image/svg+xml" data="#{url}">#{internal}</object>}
+        else
+          data = extensions[:clowncar].generate_svg(name, true, options)
+          %Q{<object type="image/svg+xml" data="data:image/svg+xml,#{::URI.escape(data)}">#{internal}</object>}
+        end
       end
     end
 
