@@ -67,6 +67,10 @@ Old IE (6-7) doesn't support SVG, if you want to use a fallback image for these 
 <%= clowncar_tag "logo", :fallback => "fallback.png" %>
 ```
 
+## Build Status
+
+[![Gem Version](https://badge.fury.io/rb/middleman-clowncar.png)](https://rubygems.org/gems/middleman-clowncar)
+[![Build Status](https://travis-ci.org/middleman/middleman-clowncar.png)](http://travis-ci.org/middleman/middleman-clowncar)
 
 # Community
 
@@ -87,3 +91,7 @@ The best way to get quick responses to your issues and swift fixes to your bugs 
 [![Support via Gittip](https://rawgithub.com/twolfson/gittip-badge/0.1.0/dist/gittip.png)](https://www.gittip.com/tdreyno/)
 
 [Support via Donation](https://spacebox.io/s/4dXbHBorC3)
+
+## License
+
+Copyright (c) 2013 Thomas Reynolds. MIT Licensed, see [LICENSE](https://github.com/middleman/middleman-clowncar/blob/master/LICENSE.md) for details.
