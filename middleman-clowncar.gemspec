@@ -11,6 +11,7 @@ Gem::Specification.new do |s|
   s.homepage    = "https://github.com/middleman/middleman-clowncar"
   s.summary     = %q{Adds ClownCar to Middleman}
   s.description = %q{Adds ClownCar to Middleman}
+  s.license     = 'MIT'
 
   s.rubyforge_project = "middleman-clowncar"
 
